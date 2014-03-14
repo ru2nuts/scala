@@ -8,7 +8,7 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.hadoop.io.NullWritable
 import org.apache.avro.mapreduce.AvroKeyInputFormat
 import java.lang.Long
-import java.util.{Date, Calendar}
+import java.util.{Date, Calendar, HashMap}
 
 /**
  * K-means clustering in Spark/MLLib
@@ -35,11 +35,12 @@ object SparkHacks {
     val data = readAvro(sc, hdfsInputPath).cache()
       .filter(filterByPlacementAndCust00)
       .map(buildResultTuple)
+      .distinct()
       .groupBy(tuple => tuple._1)
 
     //sc.textFile(hdfsInputPath).map(_.split(",")).map(x => (x.head, x.tail.map(_.toDouble))).cache()
     println(data.count())
-    data.foreach(tuple => println(tuple._1, tuple._2))
+    //data.foreach(tuple => println(tuple._1, tuple._2))
     data.saveAsTextFile(hdfsOutputPath)
   }
 
@@ -50,28 +51,27 @@ object SparkHacks {
     if (custom != null) {
       println(custom)
     }
-    true || placementId != null && custom != null &&
-    (placementId == 15669 ||
-      placementId == 15693 ||
-      placementId == 20289 ||
-      placementId == 20305 ||
-      placementId == 20309 ||
-      placementId == 20317 ||
-      placementId == 20333 ||
-      placementId == 20337 ||
-      placementId == 20353 ||
-      placementId == 23109 ||
-      placementId == 24309 ||
-      placementId == 24313)
-    //custom#'cust00'
+    placementId != null && custom != null
+//    && (placementId == 15669 ||
+//      placementId == 15693 ||
+//      placementId == 20289 ||
+//      placementId == 20305 ||
+//      placementId == 20309 ||
+//      placementId == 20317 ||
+//      placementId == 20333 ||
+//      placementId == 20337 ||
+//      placementId == 20353 ||
+//      placementId == 23109 ||
+//      placementId == 24309 ||
+//      placementId == 24313)
   }
 
 
-  def buildResultTuple(tuple: (AvroKey[GenericRecord], NullWritable)): (Int, AnyRef) = {
+  def buildResultTuple(tuple: (AvroKey[GenericRecord], NullWritable)): (Int, String) = {
     val cal = Calendar.getInstance()
     cal.setTime(new Date(tuple._1.datum().get("timestamp").asInstanceOf[Long].toLong))
     val k = cal.get(Calendar.WEEK_OF_YEAR)
-    val v = tuple._1.datum().get("custom")
+    val v = tuple._1.datum().get("custom").asInstanceOf[HashMap[String,String]].get("cust00")
     (k, v)
   }
 
