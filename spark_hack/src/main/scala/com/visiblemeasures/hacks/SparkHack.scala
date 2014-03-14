@@ -2,56 +2,85 @@ package com.visiblemeasures.spark
 
 import org.apache.spark
 import spark.SparkContext
-import spark.rdd.RDD
-import spark.mllib.clustering.KMeans
+import org.apache.avro.mapred
+import mapred.AvroKey
+import org.apache.avro.generic.GenericRecord
+import org.apache.hadoop.io.NullWritable
+import org.apache.avro.mapreduce.AvroKeyInputFormat
+import java.lang.Long
+import java.util.{Date, Calendar}
 
 /**
  * K-means clustering in Spark/MLLib
  */
 object SparkHacks {
-  
+
   def main(args: Array[String]) = {
-    
-    if (args.length != 7) {
-      
-      println("Usage: SparkHacks master hdfsInputPath hdfsOutputPath k maxIters numRuns epsilon")
+    if (args.length != 3) {
+      println("Usage: master SparkHacks hdfsInputPath hdfsOutputPath")
+      println("       E.g.: " +
+        "Cluster URL to connect to (e.g. mesos://host:port, spark://host:port, local[4]);" +
+        "Input path /DEV/data/reptar/hourly;" +
+        "Output path: /DEV/output/vtv/vtv_sae_uniques_by_week/")
       System.exit(1)
     }
-    
-    // Attach command line args to references
-    val Array(master, hdfsInputPath, hdfsOutputPath, k, maxIters, numRuns, epsilon) = args.take(7).toArray
-    
-    // Create SparkContext for distributed processing (RDDs, map/reduce, etc.)
-    val sc = new SparkContext(master = master, appName = "SparkKMeans",
-                              sparkHome = System.getenv("SPARK_HOME"), jars = null)
-    
-    // Convert CSV input file into RDD[String, Array[Double]], i.e. user hashes followed by numeric values
-    // Cache the RDD for in-memory processing
-    val data = sc.textFile(hdfsInputPath).map(_.split(",")).map(x => (x.head, x.tail.map(_.toDouble))).cache()
-    
-    // Get just Array[Double] out of the dataset, user hashes need to be dropped for training
-    val featurizedData = data.map(_._2)
-    
-    // See convenience method kMeansModel() below in this code file
-    val model = kMeansModel(k.toInt, maxIters.toInt, epsilon.toDouble, numRuns.toInt, featurizedData) 
-    
-    // Stdout goes to Altiscale logs
-    println("Cost function value: " + model.computeCost(featurizedData))
-    
-    // Persist results in HDFS - can still obtain RDD reference for later use if desired
-    val clusteredData = data.map(x => Array(x._1, model.predict(x._2)).mkString(","))
-                                 clusteredData.saveAsTextFile(hdfsOutputPath)
-      
-  }
-  
-  
-  /*
-   * Using KMeansModel.train() is bad because it doesn't allow one to set the convergence 
-   * criterion, etc.On the other hand, KMeans() uses a builder pattern instead of constructor args
-   * (it's an actual builder pattern rather than mutating setters). Hence this convenience method.
-   */
-  def kMeansModel(k: Int, maxIters: Int, epsilon: Double, numRuns: Int, data: RDD[Array[Double]]) = 
-    new KMeans().setK(k.toInt).setMaxIterations(maxIters.toInt).setEpsilon(epsilon)
-                .setRuns(numRuns.toInt).setInitializationMode("k-means||").run(data)
 
+    // Attach command line args to references
+    val Array(master, hdfsInputPath, hdfsOutputPath) = args.take(3).toArray
+
+    // Create SparkContext for distributed processing (RDDs, map/reduce, etc.)
+    val sc = new SparkContext(master = master, appName = "SparkVTV_SAE_Uniques_by_week",
+      sparkHome = System.getenv("SPARK_HOME"), jars = null) //List("target/scala-2.10/simple-project_2.10-1.0.jar")
+
+    val data = readAvro(sc, hdfsInputPath).cache()
+      .filter(filterByPlacementAndCust00)
+      .map(buildResultTuple)
+      .groupBy(tuple => tuple._1)
+
+    //sc.textFile(hdfsInputPath).map(_.split(",")).map(x => (x.head, x.tail.map(_.toDouble))).cache()
+    println(data.count())
+    data.foreach(tuple => println(tuple._1, tuple._2))
+    data.saveAsTextFile(hdfsOutputPath)
+  }
+
+
+  def filterByPlacementAndCust00(tuple: (AvroKey[GenericRecord], NullWritable)): Boolean = {
+    val placementId = tuple._1.datum().get("placement_id")
+    val custom = tuple._1.datum().get("custom")
+    if (custom != null) {
+      println(custom)
+    }
+    true || placementId != null && custom != null &&
+    (placementId == 15669 ||
+      placementId == 15693 ||
+      placementId == 20289 ||
+      placementId == 20305 ||
+      placementId == 20309 ||
+      placementId == 20317 ||
+      placementId == 20333 ||
+      placementId == 20337 ||
+      placementId == 20353 ||
+      placementId == 23109 ||
+      placementId == 24309 ||
+      placementId == 24313)
+    //custom#'cust00'
+  }
+
+
+  def buildResultTuple(tuple: (AvroKey[GenericRecord], NullWritable)): (Int, AnyRef) = {
+    val cal = Calendar.getInstance()
+    cal.setTime(new Date(tuple._1.datum().get("timestamp").asInstanceOf[Long].toLong))
+    val k = cal.get(Calendar.WEEK_OF_YEAR)
+    val v = tuple._1.datum().get("custom")
+    (k, v)
+  }
+
+
+  private def readAvro(sparkContext: SparkContext, path: String) = {
+    sparkContext.newAPIHadoopFile[
+      AvroKey[GenericRecord],
+      NullWritable,
+      AvroKeyInputFormat[GenericRecord]
+      ](path)
+  }
 }

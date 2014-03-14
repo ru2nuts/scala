@@ -27,6 +27,7 @@ resolvers ++= Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/re
                   "SBT Assembly" at "http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases")
 
 libraryDependencies ++= Seq(
+  "org.apache.avro"    % "avro-mapred" % "1.7.3",
   "org.apache.spark"    %%  "spark-core" %  "0.9.0-incubating"
 //  "commons-daemon"    %  "commons-daemon" % "1.0.3",
 //  "org.apache.spark"    %%  "spark-yarn" % "0.9.0-incubating"
