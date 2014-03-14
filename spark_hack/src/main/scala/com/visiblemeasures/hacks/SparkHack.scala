@@ -37,6 +37,7 @@ object SparkHacks {
       .map(buildResultTuple)
       .distinct()
       .groupBy(tuple => tuple._1)
+      .map(t => (t._1, t._2.map(tt => (tt._2))))
 
     //sc.textFile(hdfsInputPath).map(_.split(",")).map(x => (x.head, x.tail.map(_.toDouble))).cache()
     println(data.count())
@@ -51,19 +52,19 @@ object SparkHacks {
     if (custom != null) {
       println(custom)
     }
-    placementId != null && custom != null
-//    && (placementId == 15669 ||
-//      placementId == 15693 ||
-//      placementId == 20289 ||
-//      placementId == 20305 ||
-//      placementId == 20309 ||
-//      placementId == 20317 ||
-//      placementId == 20333 ||
-//      placementId == 20337 ||
-//      placementId == 20353 ||
-//      placementId == 23109 ||
-//      placementId == 24309 ||
-//      placementId == 24313)
+    placementId != null && custom != null &&
+     (placementId == 15669 ||
+      placementId == 15693 ||
+      placementId == 20289 ||
+      placementId == 20305 ||
+      placementId == 20309 ||
+      placementId == 20317 ||
+      placementId == 20333 ||
+      placementId == 20337 ||
+      placementId == 20353 ||
+      placementId == 23109 ||
+      placementId == 24309 ||
+      placementId == 24313)
   }
 
 

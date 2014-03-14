@@ -33,10 +33,9 @@
     <orderEntry type="library" name="SBT: org.mortbay.jetty:servlet-api:2.5-20081211" level="project" />
     <orderEntry type="library" name="SBT: org.apache.velocity:velocity:1.7" level="project" />
     <orderEntry type="library" name="SBT: commons-collections:commons-collections:3.2.1" level="project" />
-    <orderEntry type="library" name="SBT: commons-lang:commons-lang:2.4" level="project" />
+    <orderEntry type="library" name="SBT: commons-daemon:commons-daemon:1.0.5" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.spark:spark-yarn_2.10:0.9.0-incubating" level="project" />
     <orderEntry type="library" name="SBT: org.apache.spark:spark-core_2.10:0.9.0-incubating" level="project" />
-    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-client:1.0.4" level="project" />
-    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-core:1.0.4" level="project" />
     <orderEntry type="library" name="SBT: xmlenc:xmlenc:0.52" level="project" />
     <orderEntry type="library" name="SBT: commons-codec:commons-codec:1.4" level="project" />
     <orderEntry type="library" name="SBT: org.apache.commons:commons-math:2.1" level="project" />
@@ -48,7 +47,6 @@
     <orderEntry type="library" name="SBT: commons-net:commons-net:1.4.1" level="project" />
     <orderEntry type="library" name="SBT: oro:oro:2.0.8" level="project" />
     <orderEntry type="library" name="SBT: commons-el:commons-el:1.0" level="project" />
-    <orderEntry type="library" name="SBT: hsqldb:hsqldb:1.8.0.10" level="project" />
     <orderEntry type="library" name="SBT: net.java.dev.jets3t:jets3t:0.7.1" level="project" />
     <orderEntry type="library" name="SBT: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" name="SBT: org.apache.avro:avro:1.7.4" level="project" />
@@ -106,6 +104,33 @@
     <orderEntry type="library" name="SBT: info.ganglia.gmetric4j:gmetric4j:1.0.3" level="project" />
     <orderEntry type="library" name="SBT: org.acplt:oncrpc:1.0.7" level="project" />
     <orderEntry type="library" name="SBT: com.codahale.metrics:metrics-graphite:3.0.0" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-api:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-annotations:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: jdiff:jdiff:1.0.9" level="project" />
+    <orderEntry type="library" name="SBT: com.google.inject.extensions:guice-servlet:3.0" level="project" />
+    <orderEntry type="library" name="SBT: com.google.inject:guice:3.0" level="project" />
+    <orderEntry type="library" name="SBT: javax.inject:javax.inject:1" level="project" />
+    <orderEntry type="library" name="SBT: aopalliance:aopalliance:1.0" level="project" />
+    <orderEntry type="library" name="SBT: com.cenqua.clover:clover:3.0.2" level="project" />
+    <orderEntry type="library" name="SBT: commons-io:commons-io:2.4" level="project" />
+    <orderEntry type="library" name="SBT: com.sun.jersey.jersey-test-framework:jersey-test-framework-grizzly2:1.8" level="project" />
+    <orderEntry type="library" name="SBT: com.sun.jersey:jersey-server:1.8" level="project" />
+    <orderEntry type="library" name="SBT: com.sun.jersey.contribs:jersey-guice:1.8" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-common:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-client:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-client:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-common:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: commons-lang:commons-lang:2.5" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-auth:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: com.googlecode.json-simple:json-simple:1.1" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-hdfs:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-app:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-common:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-core:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-server-common:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-shuffle:0.23.7" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-jobclient:0.23.7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="SBT: junit:junit:4.8.2:runtime" level="project" />
   </component>
 </module>
 
