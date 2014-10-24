@@ -10,5 +10,7 @@ project/boot/
 project/plugins/project/
 
 # Scala-IDE specific
+.idea/
+*.iml
 .scala_dependencies
 .DS_Store
