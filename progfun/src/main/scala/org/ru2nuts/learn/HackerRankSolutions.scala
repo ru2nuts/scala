@@ -1,5 +1,6 @@
 package org.ru2nuts.learn
 
+import scala.collection.Seq
 import scala.io.StdIn._
 
 object HackerRankSolutions {
@@ -194,7 +195,7 @@ object HackerRankSolutions {
     sort(c)
   }
 
-  def main(args: Array[String]) {
+  def main14(args: Array[String]) {
     val t = readLine().toInt
     for (i <- 1 to t) {
       var n = readLine().toInt
@@ -214,6 +215,39 @@ object HackerRankSolutions {
       println(s2)
     }
   }
+
+
+  def main(args: Array[String]) = {
+
+    def fibonacciSeqMod(t1: BigInt, t2: BigInt, sizeLimit: BigInt): Seq[BigInt] = {
+      def recur(current: List[BigInt], sizeLimit: BigInt): List[BigInt] = {
+        if (current.size >= sizeLimit)
+          current
+        else {
+          val z= current.takeRight(2)
+          val (a1, a2) = (z(0), z(1))
+          val a3: BigInt = a1 + a2 * a2
+
+          val newCur: List[BigInt] = current ::: a3 :: Nil
+          recur(newCur, sizeLimit)
+        }
+      }
+      val cur = t1 :: t2 :: Nil
+      recur(cur, sizeLimit)
+    }
+
+    val c: Array[Int] = readLine().split(" ").map(_.toInt)
+
+    val t1 = c(0)
+    val t2 = c(1)
+    val n = c(2)
+
+    val tn = fibonacciSeqMod(t1, t2, n).takeRight(1)(0)
+
+    println(tn)
+  }
+
+
 
 
 }

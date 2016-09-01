@@ -6,7 +6,7 @@ object FunctionalPlayground {
 
 
   def main(args: Array[String]) = {
-    val f1 = fibonacciSeq(1000000000)
+    val f1 = fibonacciSeq(1000)
 
     f1.foreach(println)
   }
