@@ -217,14 +217,14 @@ object HackerRankSolutions {
   }
 
 
-  def main(args: Array[String]) = {
+  def main15(args: Array[String]) = {
 
     def fibonacciSeqMod(t1: BigInt, t2: BigInt, sizeLimit: BigInt): Seq[BigInt] = {
       def recur(current: List[BigInt], sizeLimit: BigInt): List[BigInt] = {
         if (current.size >= sizeLimit)
           current
         else {
-          val z= current.takeRight(2)
+          val z = current.takeRight(2)
           val (a1, a2) = (z(0), z(1))
           val a3: BigInt = a1 + a2 * a2
 
@@ -247,7 +247,48 @@ object HackerRankSolutions {
     println(tn)
   }
 
+  /* https://www.hackerrank.com/challenges/synchronous-shopping */
+  def main(args: Array[String]) {
+    val sc = new java.util.Scanner(System.in)
+    var n = sc.nextInt()
+    var m = sc.nextInt()
+    var k = sc.nextInt()
 
+    // shopping center type: number of fish types, array of fish types
+    var shoppingCenters = new Array[(Int, Array[Int])](n)
+    for (i <- 0 to n - 1) {
+      val tn = sc.nextInt()
+      val fishTypes = new Array[Int](tn)
+      for (j <- 0 to tn - 1) {
+        fishTypes(j) = sc.nextInt()
+      }
+      shoppingCenters(i) = (tn, fishTypes)
+    }
+
+    // road type: node 1, node 2, edge weight
+    val road = new Array[(Int, Int, Int)](m)
+    for (i <- 0 to n - 1) {
+      road(i) = (sc.nextInt(), sc.nextInt(), sc.nextInt())
+    }
+
+    // get a set (S) of nodes with distinct fish types (so that we collect all types of fish)
+    // add to that set nodes 1 and N
+    // all combinations of 2 sub-paths form 1 to N, covering all nodes in S (min sub-path is 1->N)
+    // traverse all combinations, choose min total weight one
+
+    // all combinations of 2 sub-paths from 1->N (which collect all fish types)
+    // choose min total weight combination
+    // e.g.: nodes 1,2,3,N
+    // 1->N, 1->2->N, 1->3-N, 1->3-N, 1->3->2->N
+
+    // all paths from 1 -> N
+    // all combinations of two paths (different or same)
+    // choose only combinations, that collect all fish types
+    // find combo with min total weight
+
+    //type Node =
+
+  }
 
 
 }
