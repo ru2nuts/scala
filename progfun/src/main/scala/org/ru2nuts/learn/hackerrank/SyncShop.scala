@@ -6,29 +6,52 @@ package org.ru2nuts.learn.hackerrank
 object SyncShop {
 
   def main(args: Array[String]) {
-    var n = 5
-    var m = 5
-    var k = 5
+
+    val (n, m, k) = (6, 10, 3)
 
     // shopping center type: number of fish types, array of fish types
-    var shoppingCenters = new Array[(Int, Array[Int])](n)
-    for (i <- 0 to n - 1) {
-      val tn = 1
-      val fishTypes = new Array[Int](tn)
-      for (j <- 0 to tn - 1) {
-        fishTypes(j) = i + 1
-      }
-      shoppingCenters(i) = (tn, fishTypes)
-    }
+    val shoppingCenters: Array[(Int, Array[Int])] = Array[(Int, Array[Int])](
+      (2, Array[Int](1, 2)),
+      (1, Array[Int](3)),
+      (0, Array[Int]()),
+      (2, Array[Int](1, 3)),
+      (1, Array[Int](2)),
+      (1, Array[Int](3)))
 
     // road type: node 1, node 2, edge weight
     val road: Array[(Int, Int, Int)] = Array(
-      (1, 2, 10),
-      (1, 3, 10),
-      (2, 4, 10),
-      (3, 5, 10),
-      (4, 5, 10)
-    )
+      (1, 2, 572),
+      (4, 2, 913),
+      (2, 6, 220),
+      (1, 3, 579),
+      (2, 3, 808),
+      (5, 3, 298),
+      (6, 1, 927),
+      (4, 5, 171),
+      (1, 5, 671),
+      (2, 5, 463))
+
+    //input
+    //    6 10 3
+    //    2 1 2
+    //    1 3
+    //    0
+    //    2 1 3
+    //    1 2
+    //    1 3
+    //    1 2 572
+    //    4 2 913
+    //    2 6 220
+    //    1 3 579
+    //    2 3 808
+    //    5 3 298
+    //    6 1 927
+    //    4 5 171
+    //    1 5 671
+    //    2 5 463
+
+    //result
+    //    792
 
     val res = proc(n, m, k, shoppingCenters, road)
 
@@ -37,22 +60,10 @@ object SyncShop {
 
   def proc(n: Int, m: Int, k: Int, shoppingCenters: Array[(Int, Array[Int])], road: Array[(Int, Int, Int)]) = {
 
-    // get a set (S) of edges with distinct fish types (so that we collect all types of fish)
-    // add to that set edges 1 and N
-    // all combinations of 2 sub-paths form 1 to N, covering all edges in S (min sub-path is 1->N)
-    // traverse all combinations, choose min total weight one
-
-    // all combinations of 2 sub-paths from 1->N (which collect all fish types)
-    // choose min total weight combination
-    // e.g.: edges 1,2,3,N
-    // 1->N, 1->2->N, 1->3-N, 1->3-N, 1->3->2->N
-
     // all paths from 1 -> N
     // all combinations of two paths (different or same)
     // choose only combinations, that collect all fish types
     // find combo with min total weight
-
-    //type Edge =
 
     case class Edge(n1: Int, n2: Int, weight: Int)
 
@@ -93,24 +104,13 @@ object SyncShop {
 
       val initP = Path(List(Edge(startN, startN, 0)), allEdges)
 
-      val result = advance(initP, allEdges, endN)
-
-      result
-
-      // until no patsh found
-      //   find path from start to end, pN
-      //   save pN to resulting paths list
-      //   remove
-
-      //      def recur(frontier: List[Int]) = {
-      //        if (frontier)
-      //      }
+      advance(initP, allEdges, endN)
     }
 
     val startN: Int = 1
     val endN: Int = n
     val fishTypes: Seq[Int] = shoppingCenters.flatMap(_._2.toSet).distinct.toSeq.sorted
-    val allEdges: Seq[Edge] = road.map(e => Edge(e._1, e._2, e._3)).toSeq
+    val allEdges: Seq[Edge] = road.map(e => Edge(e._1, e._2, e._3)).union(road.map(e => Edge(e._2, e._1, e._3))).toSeq
 
     val allPaths: Seq[Path] = FindAllPaths(startN, endN, allEdges)
 
@@ -120,7 +120,7 @@ object SyncShop {
 
     // filter the ones that collect all fish types
     val res: Int = pairs
-      .filter(p => p._1.nodes.union(p._2.nodes).distinct.sorted == fishTypes)
+      .filter(p => p._1.nodes.union(p._2.nodes).flatMap(n => shoppingCenters(n-1)._2).distinct.sorted == fishTypes)
       .map(p => Math.max(p._1.weight, p._2.weight)).min
 
     res
