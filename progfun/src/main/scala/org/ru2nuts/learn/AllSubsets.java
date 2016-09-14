@@ -20,19 +20,18 @@ public class AllSubsets {
             }
             System.out.println();
         }
-        //return 0;
     }
 
-    private static HashSet<HashSet<String>> getAllSubsets(HashSet<String> set) {
+    private static <T> HashSet<HashSet<T>> getAllSubsets(HashSet<T> set) {
         int size = set.size();
         if (size == 0 || size == 1) {
-            HashSet<HashSet<String>> res = new HashSet<HashSet<String>>();
+            HashSet<HashSet<T>> res = new HashSet<HashSet<T>>();
             res.add(set);
             return res;
         }
-        HashSet<HashSet<String>> res = new HashSet<HashSet<String>>();
-        for (String st : set) {
-            HashSet<String> subset = (HashSet<String>) set.clone();
+        HashSet<HashSet<T>> res = new HashSet<HashSet<T>>();
+        for (T st : set) {
+            HashSet<T> subset = (HashSet<T>) set.clone();
             subset.remove(st);
             res.add(subset);
             res.addAll(getAllSubsets(subset));
