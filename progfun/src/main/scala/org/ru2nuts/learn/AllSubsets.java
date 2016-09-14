@@ -12,19 +12,19 @@ public class AllSubsets {
 
         HashSet<String> set = new HashSet<>(Arrays.asList(new String[]{"a", "b", "c", "d", "e"}));
         HashSet<HashSet<String>> allSubsets = getAllSubsets(set);
-        assert allSubsets.size() == Math.pow(2, set.size());
+        assert allSubsets.size() == Math.pow(2, set.size()) - 1;
 
         for (HashSet<String> subset : allSubsets) {
             for (String st : subset) {
                 System.out.print(st);
             }
-            System.out.println();
+            System.out.println("--");
         }
     }
 
     private static <T> HashSet<HashSet<T>> getAllSubsets(HashSet<T> set) {
         int size = set.size();
-        if (size == 0 || size == 1) {
+        if (size == 0) {
             HashSet<HashSet<T>> res = new HashSet<HashSet<T>>();
             res.add(set);
             return res;
