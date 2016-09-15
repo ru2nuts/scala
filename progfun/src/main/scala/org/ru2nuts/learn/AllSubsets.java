@@ -1,7 +1,8 @@
 package org.ru2nuts.learn;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 
 /**
  * Return all subsets for a set.
@@ -9,12 +10,11 @@ import java.util.HashSet;
 public class AllSubsets {
 
     public static void main(String[] args) {
+        List<String> set = new ArrayList<>(Arrays.asList(new String[]{"a", "b", "c", "d", "e"}));
+        List<List<String>> allSubsets = getSubSets(set, 0);
+        assert allSubsets.size() == Math.pow(2, set.size());
 
-        HashSet<String> set = new HashSet<>(Arrays.asList(new String[]{"a", "b", "c", "d", "e"}));
-        HashSet<HashSet<String>> allSubsets = getAllSubsets(set);
-        assert allSubsets.size() == Math.pow(2, set.size()) - 1;
-
-        for (HashSet<String> subset : allSubsets) {
+        for (List<String> subset : allSubsets) {
             for (String st : subset) {
                 System.out.print(st);
             }
@@ -22,19 +22,30 @@ public class AllSubsets {
         }
     }
 
-    private static <T> HashSet<HashSet<T>> getAllSubsets(HashSet<T> set) {
-        int size = set.size();
-        if (size == 0) {
-            HashSet<HashSet<T>> res = new HashSet<HashSet<T>>();
-            res.add(set);
-            return res;
+    private static <T> List<List<T>> getSubSets(List<T> set, int index) {
+        // base case - return a list with an empty set
+        if (index == set.size()) {
+            List<T> emptySet = new ArrayList<T>();
+            List<List<T>> baseList = new ArrayList<List<T>>();
+            baseList.add(emptySet);
+            return baseList;
         }
-        HashSet<HashSet<T>> res = new HashSet<HashSet<T>>();
-        for (T st : set) {
-            HashSet<T> subset = (HashSet<T>) set.clone();
-            subset.remove(st);
-            res.add(subset);
-            res.addAll(getAllSubsets(subset));
+
+        List<List<T>> res = new ArrayList<List<T>>();
+
+        // recurse with incremented index, will return all subsets without the current element
+        List<List<T>> subsets = getSubSets(set, index + 1);
+
+        // add subsets without the current element to the result
+        res.addAll(subsets);
+
+        T currentSubset = set.get(index);
+        for (List<T> subset : subsets) {
+            List<T> additionalSubset = new ArrayList<T>();
+            additionalSubset.addAll(subset);
+            additionalSubset.add(currentSubset);
+            // add subsets WITH the current element to the results
+            res.add(additionalSubset);
         }
         return res;
     }
