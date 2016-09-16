@@ -75,7 +75,7 @@ object DataStructuresPlayground {
       printM(matrix)
       val nxt = nextMove(matrix)
       if (nxt.isEmpty) {
-        println("Draw")
+        println("No more moves")
         getOut = true
       } else {
         var (x, y) = nxt.get

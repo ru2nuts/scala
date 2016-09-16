@@ -33,19 +33,19 @@ public class AllSubsets {
 
         List<List<T>> res = new ArrayList<List<T>>();
 
-        // recurse with incremented index, will return all subsets without the current element
-        List<List<T>> subsets = getSubSets(set, index + 1);
+        // recurse with incremented index, will return all subsetsWithoutCurrentElement without the current element
+        List<List<T>> subsetsWithoutCurrentElement = getSubSets(set, index + 1);
 
-        // add subsets without the current element to the result
-        res.addAll(subsets);
+        // add subsetsWithoutCurrentElement without the current element to the result
+        res.addAll(subsetsWithoutCurrentElement);
 
-        T currentSubset = set.get(index);
-        for (List<T> subset : subsets) {
-            List<T> additionalSubset = new ArrayList<T>();
-            additionalSubset.addAll(subset);
-            additionalSubset.add(currentSubset);
-            // add subsets WITH the current element to the results
-            res.add(additionalSubset);
+        T currentElement = set.get(index);
+        for (List<T> subset : subsetsWithoutCurrentElement) {
+            List<T> subsetsWithCurrentElement = new ArrayList<T>();
+            subsetsWithCurrentElement.addAll(subset);
+            subsetsWithCurrentElement.add(currentElement);
+            // add subsetsWithoutCurrentElement WITH the current element to the results
+            res.add(subsetsWithCurrentElement);
         }
         return res;
     }
