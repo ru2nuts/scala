@@ -12,6 +12,7 @@ public class ProjectDeps {
 
         int n = sc.nextInt();
         int m = sc.nextInt();
+        char c = 'a';
 
         //TODO: validate input here for n,m < 0, n,m == 0, etc.
 
