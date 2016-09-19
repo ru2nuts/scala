@@ -1,9 +1,6 @@
 package org.ru2nuts.learn.carreercup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by ru2nuts on 9/18/16.
@@ -15,37 +12,46 @@ public class AbcStrings {
 
         ArrayList<String> chars = new ArrayList<String>(Arrays.asList(new String[]{"a", "b", "c"}));
 
-        ArrayList<String> allCombinations = recur(chars, n);
+        HashSet<String> allCombinations = recur(chars, 3);
         for (String c : allCombinations) {
             System.out.println(c);
         }
+        System.out.println("Size:" + allCombinations.size());
+
+        int countValid = 0;
+        for (String c : allCombinations) {
+            if (!c.contains("ccc") && (c.indexOf('b') == -1 || c.indexOf('b') == c.lastIndexOf('b'))) {
+                System.out.println(c);
+                countValid++;
+            }
+        }
+        System.out.println("Valid:" + countValid);
+
     }
 
-    public static ArrayList<String> recur(ArrayList<String> availableChars, int len) {
+    public static HashSet<String> recur(List<String> availableChars, int len) {
         if (len == 1) {
-            ArrayList<String> res = new ArrayList<>();
+            HashSet<String> res = new HashSet<>();
             for (String ch : availableChars) {
                 res.add(ch);
             }
             return res;
         }
-        ArrayList<String> results = new ArrayList<>();
-        ArrayList<String> intermediateResults = recur(availableChars, len - 1);
-        for (String intermediateResult : intermediateResults) {
+        HashSet<String> results = new HashSet<>();
+
+        for (int pos = 0; pos < len; pos++) {
             for (String ch : availableChars) {
-                for (int i = 0; i < len; i++) {
-                    results.add(insertChar(intermediateResult, ch, i));
+                HashSet<String> intermediateResults = recur(availableChars, len - 1);
+
+                for (String intermediateResult : intermediateResults) {
+                    results.add(insertCharAt(intermediateResult, ch, pos));
                 }
             }
         }
         return results;
     }
 
-    public static String insertChar(String str, String ch, int pos) {
-        if (pos > str.length() || ch.length() != 1) {
-            throw new RuntimeException();
-            //return str;
-        }
+    public static String insertCharAt(String str, String ch, int pos) {
         return str.substring(0, pos) + ch + str.substring(pos);
     }
 }
