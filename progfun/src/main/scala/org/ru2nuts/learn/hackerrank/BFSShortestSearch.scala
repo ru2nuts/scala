@@ -15,6 +15,8 @@ object BFSShortestSearch {
       val node = q.dequeue()
       if (!visited.contains(node)) {
         visited.add(node)
+        //TODO: inefficient - repeated looks in "edges" and "visited"
+        // adgacent nodes should be avaialble from the current node, e.g. "neighbors" collection
         val nextNodes = edges.filter(_._1 == node).map(_._2).
           union(edges.filter(_._2 == node).map(_._1)).
           distinct.filterNot(visited.contains(_))
