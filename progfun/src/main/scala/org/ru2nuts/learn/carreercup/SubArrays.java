@@ -1,16 +1,13 @@
 package org.ru2nuts.learn.carreercup;
 
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by ru2nuts on 9/19/16.
  */
 public class SubArrays {
 
-    public static void main(String[] args) {
+    public static void main1(String[] args) {
         Scanner in = new Scanner(System.in);
         int n = in.nextInt();
         int k = in.nextInt();
@@ -31,6 +28,26 @@ public class SubArrays {
             System.out.println(mins[i]);
         }
     }
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+
+        ArrayList<Integer> arr = new ArrayList<Integer>(n);
+        for (int i = 0; i < n; i++) {
+            arr.add(in.nextInt());
+        }
+        List<List<Integer>> res = getAllSubArrays(arr);
+        for (int i = 0; i < res.size(); i++) {
+            List<Integer> subser = res.get(i);
+            for (int j = 0; j < subser.size(); j++) {
+                System.out.print(subser.get(j));
+                System.out.print(" ");
+            }
+            System.out.println("++++++++++++++++++++++");
+        }
+    }
+
 
     public static int[] minSubSizeKOfArrayOfSizeN(int[] bigArr, int k) {
 
@@ -82,6 +99,31 @@ public class SubArrays {
         }
         res[n - k] = ar[d.getFirst()];
         return res;
+    }
+
+    public static List<List<Integer>> getAllSubArrays(List<Integer> arr) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (arr.size() == 0) {
+            return res;
+        } else if (arr.size() == 1) {
+            res.add(arr);
+            res.add(arr.subList(1, 1));
+            return res;
+        } else {
+            List<Integer> sublist = arr.subList(1, arr.size());
+            List<List<Integer>> restRes = getAllSubArrays(sublist);
+
+            for (int i = 0; i < restRes.size(); i++) {
+                List<Integer> subResWithout = restRes.get(i);
+
+                List<Integer> subResWith = new ArrayList<>(subResWithout);
+                subResWith.add(arr.get(0));
+
+                res.add(subResWith);
+                res.add(subResWithout);
+            }
+            return res;
+        }
     }
 
 }
