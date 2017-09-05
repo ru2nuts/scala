@@ -5,15 +5,11 @@ package org.ru2nuts.learn.hackerrank
   */
 object ArrayManipulation {
 
-  var max = 0L
-
   def modifyA(a: Int, b: Int, k: Long, inA: scala.collection.mutable.ArraySeq[Long]) = {
-    for (i <- a to b) {
-      val l = inA(i) + k
-      if (l > max)
-        max = l
-      inA(i) = l
-    }
+    inA(a) += k
+    val afterB = b + 1
+    if (afterB < inA.length)
+      inA(afterB) -= k
   }
 
   def main(args: Array[String]) {
@@ -27,6 +23,13 @@ object ArrayManipulation {
       val b = sc.nextInt - 1
       val k = sc.nextLong
       modifyA(a, b, k, inA)
+    })
+    var max = 0L
+    var runningSum = 0L
+    inA.foreach(e => {
+      runningSum += e
+      if (max < runningSum)
+        max = runningSum
     })
     println(max)
   }
