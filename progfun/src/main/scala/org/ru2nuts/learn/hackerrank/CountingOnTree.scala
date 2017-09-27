@@ -11,26 +11,32 @@ object CountingOnTree {
 
   class Edge(val from: Node, val to: Node)
 
+  val cache = scala.collection.mutable.Map[(Int, Int), Option[List[Node]]]()
+
   def getPath(start: Node, end: Node, edges: Seq[Edge]): Option[List[Node]] = {
-    if (edges == null || edges.size == 0)
-      None
+    if (start == end)
+      return Some(start :: Nil)
+
+    var pathIndex = (start.index, end.index)
+    val cachedVal = cache.get(pathIndex)
+    if (cachedVal.nonEmpty)
+      return cachedVal.get
     else {
       start.unexplored = false
-      val frontier = edges.filter(e => e.from == start && e.to.unexplored).map(_.to).union(edges.filter(e => e.to == start && e.from.unexplored).map(_.from))
-      if (frontier.isEmpty)
-        None
-      else {
-        val endNode = frontier.find(_ == end)
-        if (endNode.nonEmpty)
-          Option(start :: endNode.get :: Nil)
-        else {
-          val fp = frontier.map(e => getPath(e, end, edges).map(p => start :: p)).filter(_.nonEmpty)
-          if (fp.isEmpty)
-            None
-          else
-            fp.head
-        }
+      val frontier = edges.filter(_.to.unexplored).filter(_.from == start).map(_.to)
+        .union(edges.filter(_.from.unexplored).filter(_.to == start).map(_.from))
+      if (frontier.nonEmpty) {
+        frontier.foreach(e => {
+          val p = getPath(e, end, edges)
+          if (p.nonEmpty) {
+            val result = Some(start :: p.get)
+            cache(pathIndex) = result
+            return result
+          }
+        })
       }
+      cache(pathIndex) = None
+      return None
     }
   }
 
