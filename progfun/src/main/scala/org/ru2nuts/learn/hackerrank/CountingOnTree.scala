@@ -14,6 +14,7 @@ object CountingOnTree {
   val cache = scala.collection.mutable.Map[(Int, Int), Option[List[Node]]]()
 
   def getPath(start: Node, end: Node, edges: Seq[Edge]): Option[List[Node]] = {
+    start.unexplored = false
     if (start == end)
       return Some(start :: Nil)
 
@@ -22,9 +23,14 @@ object CountingOnTree {
     if (cachedVal.nonEmpty)
       return cachedVal.get
     else {
-      start.unexplored = false
-      val frontier = edges.filter(_.to.unexplored).filter(_.from == start).map(_.to)
-        .union(edges.filter(_.from.unexplored).filter(_.to == start).map(_.from))
+      val frontier = edges.
+        filter(_.to.unexplored).
+        filter(_.from == start).
+        map(_.to).
+        union(edges.
+          filter(_.from.unexplored).
+          filter(_.to == start).
+          map(_.from))
       if (frontier.nonEmpty) {
         frontier.foreach(e => {
           val p = getPath(e, end, edges)
