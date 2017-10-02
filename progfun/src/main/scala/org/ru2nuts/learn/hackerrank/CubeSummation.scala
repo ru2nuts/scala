@@ -6,15 +6,7 @@ package org.ru2nuts.learn.hackerrank
 object CubeSummation {
 
   def blockSum(cube: Array[Array[Array[Long]]], x1: Int, y1: Int, z1: Int, x2: Int, y2: Int, z2: Int): Long = {
-    var s: Long = 0
-    for (i <- x1 to x2) {
-      for (j <- y1 to y2) {
-        for (k <- z1 to z2) {
-          s += cube(i - 1)(j - 1)(k - 1)
-        }
-      }
-    }
-    s
+    cube.slice(x1 - 1, x2).map(l2 => l2.slice(y1 - 1, y2).map(l3 => l3.slice(z1 - 1, z2).sum).sum).sum
   }
 
   def main(args: Array[String]) {
@@ -35,7 +27,7 @@ object CubeSummation {
             val y = sc.nextInt
             val z = sc.nextInt
             val W = sc.nextLong
-            cube(x-1)(y-1)(z-1) = W
+            cube(x - 1)(y - 1)(z - 1) = W
           }
           case "QUERY" => {
             val (x1, y1, z1, x2, y2, z2) = (sc.nextInt(), sc.nextInt(), sc.nextInt(), sc.nextInt(), sc.nextInt(), sc.nextInt())
