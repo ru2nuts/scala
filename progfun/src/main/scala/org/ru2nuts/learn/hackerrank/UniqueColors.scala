@@ -1,74 +1,61 @@
 package org.ru2nuts.learn.hackerrank
 
-import scala.collection.Seq
+import scala.collection.mutable
 
 /**
   * https://www.hackerrank.com/challenges/unique-colors
   */
 object UniqueColors {
 
-  class Node(val index: Int, val color: Int, var unexplored: Boolean) {
-    override def toString: String = "" + index + ":" + color + ":" + unexplored
+  class Node(val index: Int, val color: Int) {
+    val adjacent: mutable.HashSet[Node] = mutable.HashSet[Node]()
+
+    override def toString: String = "" + index + ":" + color
   }
 
-  class Edge(val from: Node, val to: Node) {
-    override def toString: String = "" + from + "--" + to
-  }
+  def getPath(startNode: Node, currentNode: Node, prevNode: Node, colors: mutable.HashSet[Int]): Int = {
 
-  val cache = scala.collection.mutable.Map[(Int, Int), Option[List[Node]]]()
+    colors += currentNode.color
 
-  def getPath(start: Node, end: Node, edges: Seq[Edge]): Option[List[Node]] = {
-    start.unexplored = false
-    if (start == end)
-      return Some(start :: Nil)
+    val frontier = currentNode.adjacent.filter(_ != prevNode)
 
-    var pathIndex = (start.index, end.index)
-    val cachedVal = cache.get(pathIndex)
-    if (cachedVal.nonEmpty)
-      return cachedVal.get
-    else {
-      val frontier = edges.
-        filter(_.to.unexplored).
-        filter(_.from == start).
-        map(_.to).
-        union(edges.
-          filter(_.from.unexplored).
-          filter(_.to == start).
-          map(_.from))
-      if (frontier.nonEmpty) {
+    val cs = colors.size
+
+    val fs = frontier.size
+    val result =
+      if (fs == 0)
+        cs
+      else if (fs == 1)
+        cs + getPath(startNode, frontier.head, currentNode, colors)
+      else {
+        var ss = 0
         frontier.foreach(e => {
-          val p = getPath(e, end, edges)
-          if (p.nonEmpty) {
-            val result = Some(start :: p.get)
-            cache(pathIndex) = result
-            return result
-          }
+          ss += getPath(startNode, e, currentNode, colors.clone())
         })
+        cs + ss
       }
-      //cache(pathIndex) = None
-      return None
-    }
+    result
   }
-
 
   def main(args: Array[String]) {
     val sc = new java.util.Scanner(System.in);
     val n = sc.nextInt
 
-    val nodes = (1 to n).map(index => new Node(index, sc.nextInt, true)).toList
+    val nodes = mutable.ArrayBuffer[Node]()
+    (1 to n).foreach(index => {
+      nodes += (new Node(index, sc.nextInt))
+    })
 
-    val edges = (1 to n - 1).map(_ => (new Edge(nodes(sc.nextInt - 1), nodes(sc.nextInt - 1))))
+    val edges = (1 to n - 1).foreach(_ => {
+      val n1 = nodes(sc.nextInt - 1)
+      val n2 = nodes(sc.nextInt - 1)
+      n1.adjacent.add(n2)
+      n2.adjacent.add(n1)
+    })
 
-    nodes.foreach(from => {
-      val colCount = nodes.map(to => {
-
-        nodes.foreach(n => n.unexplored = true)
-        val p = getPath(from, to, edges)
-        if (p.nonEmpty)
-          p.get.map(_.color).distinct.size
-        else
-          0
-      }).sum
+    (0 to n - 1).foreach(i => {
+      val node = nodes(i)
+      val colCount: Int = getPath(node, node, node, scala.collection.mutable.HashSet[Int]())
       println(colCount)
     })
   }
