@@ -15,19 +15,16 @@ object PolynomialDivision {
     * @param c
     * @return
     */
-  def build_px(l: Int, r: Int, c: Array[Int]): Array[(Double, Int)] = {
+  def build_px(l: Int, r: Int, c: Array[Long]): Array[(Double, Int)] = {
     var i = -1
     (for (k <- l to r) yield {
       i += 1
       (c(k).toDouble, i)
-    }).toArray[(Double, Int)]
+    }).toArray
   }
 
-  def mult_pol_by_term(pol: Array[(Double, Int)], term: (Double, Int)): Array[(Double, Int)] = {
-    pol.map(e => {
-      (e._1 * term._1, e._2 + term._2)
-    })
-  }
+  def mult_pol_by_term(pol: Array[(Double, Int)], term: (Double, Int)): Array[(Double, Int)] =
+    pol.map(e => (e._1 * term._1, e._2 + term._2))
 
   def subtract_pol(x: Array[(Double, Int)], y: Array[(Double, Int)]): Array[(Double, Int)] = {
     val n = math.max(x.last._2, y.last._2)
@@ -41,32 +38,25 @@ object PolynomialDivision {
         res(k) = (x(i)._1 - y(j)._1, k)
         i += 1
         j += 1
-        k += 1
       } else if (x(i)._2 == k && y(j)._2 > k) { // x exp matches
         res(k) = (x(i)._1, k)
         i += 1
-        k += 1
       } else if (x(i)._2 > k && y(j)._2 == k) { // y exp matches
         res(k) = (-y(j)._1, k)
         j += 1
-        k += 1
       } else {
         res(k) = (0, k)
-        k += 1
       }
+      k += 1
     }
     res
   }
 
-  def get_highest_term(x: Array[(Double, Int)]): (Double, Int) = {
+  def get_highest_term(x: Array[(Double, Int)]): (Double, Int) =
     x.last
-  }
 
-  def div_terms(numerator: (Double, Int), denominator: (Double, Int)): (Double, Int) = {
-    if (numerator._2 < denominator._2)
-      throw new IllegalArgumentException
-    (numerator._1.toDouble / denominator._1, numerator._2 - denominator._2)
-  }
+  def div_terms(numerator: (Double, Int), denominator: (Double, Int)): (Double, Int) =
+    (numerator._1 / denominator._1, numerator._2 - denominator._2)
 
   def add_term(pol: Array[(Double, Int)], term: (Double, Int)): Array[(Double, Int)] = {
     if (pol.last._2 < term._2) {
@@ -89,9 +79,10 @@ object PolynomialDivision {
     }
   }
 
-  def compact_pol(pol: Array[(Double, Int)]): Array[(Double, Int)] = {
-    pol.filter(t => math.abs(t._1) > 0.0001)
-  }
+  private val precision = 0.000001
+
+  def compact_pol(pol: Array[(Double, Int)]): Array[(Double, Int)] =
+    pol.filter(t => math.abs(t._1) > precision)
 
   def pol_div(numerator: Array[(Double, Int)], denominator: Array[(Double, Int)]): (Array[(Double, Int)], Array[(Double, Int)]) = {
 
@@ -116,27 +107,26 @@ object PolynomialDivision {
   def main(args: Array[String]) {
     val sc = new java.util.Scanner(System.in);
     var n = sc.nextInt();
-    var a = sc.nextInt();
-    var b = sc.nextInt();
+    var a = sc.nextLong();
+    var b = sc.nextLong();
     var q = sc.nextInt();
-    var c = new Array[Int](n);
+    var c = new Array[Long](n);
     for (c_i <- 0 to n - 1) {
-      c(c_i) = sc.nextInt();
+      c(c_i) = sc.nextLong();
     }
     var a0 = 0;
     while (a0 < q) {
       var queryType = sc.nextInt();
       var first = sc.nextInt();
-      var second = sc.nextInt();
 
       if (queryType == 1) {
         val i = first
-        val x = second
+        val x = sc.nextLong();
         c(i) = x
       }
       else if (queryType == 2) {
         val l = first
-        val r = second
+        val r = sc.nextInt();
 
         val px: Array[(Double, Int)] = build_px(l, r, c)
         val qx = Array[(Double, Int)]((b, 0), (a, 1))
@@ -145,7 +135,7 @@ object PolynomialDivision {
 
         if (res._2.isEmpty) {
           println("Yes")
-        } else if (math.abs(res._2.head._1) > 0.0001) {
+        } else if (math.abs(res._2.head._1) > precision) {
           println("No")
         }
       }
