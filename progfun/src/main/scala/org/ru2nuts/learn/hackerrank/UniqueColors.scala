@@ -13,26 +13,25 @@ object UniqueColors {
     override def toString: String = "" + index + ":" + color
   }
 
-  def getPath(startNode: Node, currentNode: Node, prevNode: Node, colors: mutable.HashSet[Int]): Int = {
+  def getPath(currentNode: Node, prevNode: Node): mutable.HashSet[Int] = {
+    val colors = mutable.HashSet[Int]()
 
     colors += currentNode.color
 
     val frontier = currentNode.adjacent.filter(_ != prevNode)
 
-    val cs = colors.size
-
     val fs = frontier.size
     val result =
       if (fs == 0)
-        cs
+        colors
       else if (fs == 1)
-        cs + getPath(startNode, frontier.head, currentNode, colors)
+        colors ++= getPath(frontier.head, currentNode)
       else {
-        var ss = 0
-        frontier.foreach(e => {
-          ss += getPath(startNode, e, currentNode, colors.clone())
+        val sss = mutable.HashSet[Int]()
+        frontier.foreach(e => { //foreach with var, because frontier is a hashset
+          sss ++= getPath(e, currentNode)
         })
-        cs + ss
+        colors ++= sss
       }
     result
   }
@@ -55,7 +54,7 @@ object UniqueColors {
 
     (0 to n - 1).foreach(i => {
       val node = nodes(i)
-      val colCount: Int = getPath(node, node, node, scala.collection.mutable.HashSet[Int]())
+      val colCount: Int = getPath(node, node).size
       println(colCount)
     })
   }
