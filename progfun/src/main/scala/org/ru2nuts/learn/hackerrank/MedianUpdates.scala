@@ -14,26 +14,31 @@ object MedianUpdates {
     iter.next()
   }
 
-  def calc_med(s: TreeMultiset[Int]): (Int, Int) = {
+  def calc_med(s: TreeMultiset[Int]): StringBuilder = {
     val n = s.size()
-    val isEven = (n % 2 == 0)
-
     val siter = s.iterator
-    if (isEven) {
+    val sb = new StringBuilder()
+    if (n % 2 == 0) {
       val v1 = advance_and_get(siter, n / 2 - 1)
       val v2 = siter.next()
-      val sum = v1 + v2
-      (sum / 2, if (sum % 2 == 1) 5 else 0)
+      val sum: Long = 0L + v1 + v2
+      if (sum == -1)
+        sb.append("-0")
+      else
+        sb.append(sum / 2)
+      val sumMod = sum % 2
+      if (sumMod == 1 || sumMod == -1) {
+        sb.append('.').append(5)
+      }
     } else {
-      (advance_and_get(siter, s.size / 2), 0)
+      sb.append(advance_and_get(siter, n / 2))
     }
+    sb
   }
 
   def main(args: Array[String]) {
     val sc = new java.util.Scanner(System.in);
-
     val sb = new StringBuilder
-
     val n = sc.nextInt
     sc.nextLine()
 
@@ -50,18 +55,15 @@ object MedianUpdates {
       if (op == "r") {
         var found = ss.remove(item)
         if (found && ss.size() > 0) {
-          val med: (Int, Int) = calc_med(ss)
-          sb.append(med._1).append(if (med._2 > 0) "." + med._2 else "").append("\n")
+          sb.append(calc_med(ss)).append('\n')
         } else {
           sb.append("Wrong!\n")
         }
       } else if (op == "a") {
         ss.add(item)
-        val med: (Int, Int) = calc_med(ss)
-        sb.append(med._1).append(if (med._2 > 0) "." + med._2 else "").append("\n")
+        sb.append(calc_med(ss)).append('\n')
       }
     })
     println(sb)
-    val q = sc.nextInt
   }
 }
