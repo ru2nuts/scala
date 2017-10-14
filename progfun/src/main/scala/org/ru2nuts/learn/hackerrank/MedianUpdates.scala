@@ -10,30 +10,33 @@ import com.google.common.collect.TreeMultiset
 object MedianUpdates {
 
   def advance_and_get(iter: java.util.Iterator[Int], steps: Int) = {
-    (0 to steps - 1).foreach(i => iter.next())
+    var i = 0
+    while (i < steps) {
+      i += 1
+      iter.next()
+    }
     iter.next()
   }
 
-  def calc_med(s: TreeMultiset[Int]): StringBuilder = {
+  def calc_med(s: TreeMultiset[Int], sb: StringBuilder) = {
     val n = s.size()
     val siter = s.iterator
-    val sb = new StringBuilder()
     if (n % 2 == 0) {
       val v1 = advance_and_get(siter, n / 2 - 1)
       val v2 = siter.next()
-      val sum: Long = 0L + v1 + v2
+      val sum: Long = v1.toLong + v2.toLong
       if (sum == -1)
-        sb.append("-0")
-      else
+        sb.append("-0.5")
+      else {
         sb.append(sum / 2)
-      val sumMod = sum % 2
-      if (sumMod == 1 || sumMod == -1) {
-        sb.append('.').append(5)
+        val sumMod = sum % 2
+        if (sumMod == 1 || sumMod == -1) {
+          sb.append('.').append(5)
+        }
       }
     } else {
       sb.append(advance_and_get(siter, n / 2))
     }
-    sb
   }
 
   def main(args: Array[String]) {
@@ -44,26 +47,34 @@ object MedianUpdates {
 
     val ss = com.google.common.collect.TreeMultiset.create[Int](new Comparator[Int] {
       override def compare(o1: Int, o2: Int) = {
-        o2.compareTo(o1)
+        if (o2 < o1)
+          -1
+        else if (o2 == o1)
+          0
+        else
+          1
       }
     })
 
-    (1 to n).foreach(i => {
+    var i = 0
+    while (i < n) {
+      i += 1
       val op = sc.next
       val item = sc.nextInt
-
       if (op == "r") {
         var found = ss.remove(item)
         if (found && ss.size() > 0) {
-          sb.append(calc_med(ss)).append('\n')
+          calc_med(ss, sb)
+          sb.append('\n')
         } else {
           sb.append("Wrong!\n")
         }
       } else if (op == "a") {
         ss.add(item)
-        sb.append(calc_med(ss)).append('\n')
+        calc_med(ss, sb)
+        sb.append('\n')
       }
-    })
+    }
     println(sb)
   }
 }
