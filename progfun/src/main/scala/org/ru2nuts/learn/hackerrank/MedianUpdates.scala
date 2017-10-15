@@ -2,28 +2,90 @@ package org.ru2nuts.learn.hackerrank
 
 import java.util.Comparator
 
-import com.google.common.collect.TreeMultiset
-
 /**
   * https://www.hackerrank.com/challenges/median
   */
 object MedianUpdates {
 
-  def advance_and_get(iter: java.util.Iterator[Int], steps: Int) = {
-    var i = 0
-    while (i < steps) {
-      i += 1
-      iter.next()
+
+  val leftDesc = com.google.common.collect.TreeMultiset.create[Int](new Comparator[Int] {
+    override def compare(o1: Int, o2: Int) = {
+      if (o2 < o1)
+        -1
+      else if (o2 == o1)
+        0
+      else
+        1
     }
-    iter.next()
+  })
+
+  val rightAsc = com.google.common.collect.TreeMultiset.create[Int](new Comparator[Int] {
+    override def compare(o1: Int, o2: Int) = {
+      if (o1 < o2)
+        -1
+      else if (o1 == o2)
+        0
+      else
+        1
+    }
+  })
+
+  def add_item(item: Int) = {
+    if (rightAsc.size() > 0 && item >= rightAsc.iterator().next()) {
+      rightAsc.add(item)
+    } else
+      leftDesc.add(item)
+    rebalance()
   }
 
-  def calc_med(s: TreeMultiset[Int], sb: StringBuilder) = {
-    val n = s.size()
-    val siter = s.iterator
-    if (n % 2 == 0) {
-      val v1 = advance_and_get(siter, n / 2 - 1)
-      val v2 = siter.next()
+  def remove_item(item: Int) = {
+    if (leftDesc.remove(item)) {
+      rebalance()
+      true
+    } else if (rightAsc.remove(item)) {
+      rebalance()
+      true
+    } else {
+      false
+    }
+  }
+
+  def size() =
+    leftDesc.size() + rightAsc.size()
+
+  def rebalance() = {
+    var leftSize = leftDesc.size()
+    var rightSize = rightAsc.size()
+    if (math.abs(leftSize - rightSize) > 1) {
+      if (leftSize < rightSize)
+        while (leftSize < rightSize) {
+          val e = rightAsc.iterator().next()
+          rightAsc.remove(e)
+          leftDesc.add(e)
+          rightSize -= 1
+          leftSize += 1
+        }
+      else if (leftSize > rightSize)
+        while (leftSize > rightSize) {
+          val e = leftDesc.iterator().next()
+          leftDesc.remove(e)
+          rightAsc.add(e)
+          leftSize -= 1
+          rightSize += 1
+        }
+    }
+  }
+
+  def get_median(sb: StringBuilder) = {
+    val leftSize = leftDesc.size()
+    val rightSize = rightAsc.size()
+    if (leftSize < rightSize) {
+      sb.append(rightAsc.iterator().next())
+    } else if (leftSize > rightSize) {
+      sb.append(leftDesc.iterator().next())
+    } else {
+      val v1 = leftDesc.iterator().next()
+      val v2 = rightAsc.iterator().next()
       val sum: Long = v1.toLong + v2.toLong
       if (sum == -1)
         sb.append("-0.5")
@@ -34,10 +96,9 @@ object MedianUpdates {
           sb.append('.').append(5)
         }
       }
-    } else {
-      sb.append(advance_and_get(siter, n / 2))
     }
   }
+
 
   def main(args: Array[String]) {
     val sc = new java.util.Scanner(System.in);
@@ -45,33 +106,22 @@ object MedianUpdates {
     val n = sc.nextInt
     sc.nextLine()
 
-    val ss = com.google.common.collect.TreeMultiset.create[Int](new Comparator[Int] {
-      override def compare(o1: Int, o2: Int) = {
-        if (o2 < o1)
-          -1
-        else if (o2 == o1)
-          0
-        else
-          1
-      }
-    })
-
     var i = 0
     while (i < n) {
       i += 1
       val op = sc.next
       val item = sc.nextInt
       if (op == "r") {
-        var found = ss.remove(item)
-        if (found && ss.size() > 0) {
-          calc_med(ss, sb)
+        var found = remove_item(item)
+        if (found && size() > 0) {
+          get_median(sb)
           sb.append('\n')
         } else {
           sb.append("Wrong!\n")
         }
       } else if (op == "a") {
-        ss.add(item)
-        calc_med(ss, sb)
+        add_item(item)
+        get_median(sb)
         sb.append('\n')
       }
     }
