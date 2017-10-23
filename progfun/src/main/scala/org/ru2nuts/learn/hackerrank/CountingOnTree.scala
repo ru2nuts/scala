@@ -1,5 +1,7 @@
 package org.ru2nuts.learn.hackerrank
 
+import java.io.{File, FileOutputStream, PrintWriter}
+
 import scala.collection.mutable
 
 /**
@@ -13,24 +15,30 @@ object CountingOnTree {
     override def toString: String = "" + index + ":" + value + ": (" + adjacent.map(_.index).mkString(",") + ")"
   }
 
+  val cacheRes = mutable.HashMap[(Int, Int), List[Node]]()
+
   def getPath(currentNode: Node, prevNode: Node, end: Node): Option[List[Node]] = {
     if (currentNode == end)
       return Some(currentNode :: Nil)
 
-    val frontier = currentNode.adjacent.filter(_ != prevNode)
-    if (frontier.nonEmpty) {
-      frontier.foreach(e => {
-        val p = getPath(e, currentNode, end)
-        if (p.nonEmpty) {
-          val result = Some(currentNode :: p.get)
-          return result
-        }
-      })
+    val cachedVal = cacheRes.get((currentNode.index, end.index))
+    if (cachedVal.nonEmpty) {
+      return Some(cachedVal.get)
+    } else {
+      val frontier = currentNode.adjacent.filter(_ != prevNode)
+      if (frontier.nonEmpty) {
+        frontier.foreach(e => {
+          val p = getPath(e, currentNode, end)
+          if (p.nonEmpty) {
+            val result = currentNode :: p.get
+            cacheRes.put((currentNode.index, end.index), result)
+            return Some(result)
+          }
+        })
+      }
+      return None
     }
-    return None
   }
-
-  val valToIndexMap = mutable.HashMap[Long, mutable.HashSet[Int]]()
 
   def main(args: Array[String]) {
     val sc = new java.util.Scanner(System.in);
@@ -50,6 +58,9 @@ object CountingOnTree {
     })
 
     val res = new StringBuilder
+    val valToIndexMap = mutable.HashMap[Long, mutable.HashSet[Int]]()
+
+    var t0 = System.nanoTime()
 
     (1 to q).map(_ => {
       val w = nodes(sc.nextInt - 1)
@@ -73,14 +84,20 @@ object CountingOnTree {
         val optVal = valToIndexMap.get(e.value)
         if (optVal.nonEmpty) {
           val v = optVal.get
-          if (v.size == 1 && v.head != e.index || v.size > 1)
-            count += 1
+          if (v.size == 1) {
+            if (v.head != e.index)
+              count += 1
+          }
+          else // if (v.size > 1)
+            count += v.count(ve => ve != e.index)
         }
       })
-
       res.append(count).append('\n')
     })
-
     println(res.toString())
+    val t1 = System.nanoTime()
+    val write = new PrintWriter(new FileOutputStream(new File("~/Downloads/tree_count/timings.txt"), true))
+    write.println("Elapsed time: " + (t1 - t0) + "ns")
+    write.close()
   }
 }
