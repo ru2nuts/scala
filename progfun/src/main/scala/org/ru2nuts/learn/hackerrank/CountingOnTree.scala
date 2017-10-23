@@ -15,13 +15,15 @@ object CountingOnTree {
     override def toString: String = "" + index + ":" + value + ": (" + adjacent.map(_.index).mkString(",") + ")"
   }
 
-  val cacheRes = mutable.HashMap[(Int, Int), List[Node]]()
+  val cachePaths = mutable.HashMap[(Int, Int), List[Node]]()
+
+  val cacheCounts = mutable.HashMap[((Int, Int), (Int, Int)), Int]()
 
   def getPath(currentNode: Node, prevNode: Node, end: Node): Option[List[Node]] = {
     if (currentNode == end)
       return Some(currentNode :: Nil)
 
-    val cachedVal = cacheRes.get((currentNode.index, end.index))
+    val cachedVal = cachePaths.get((currentNode.index, end.index))
     if (cachedVal.nonEmpty) {
       return Some(cachedVal.get)
     } else {
@@ -31,7 +33,7 @@ object CountingOnTree {
           val p = getPath(e, currentNode, end)
           if (p.nonEmpty) {
             val result = currentNode :: p.get
-            cacheRes.put((currentNode.index, end.index), result)
+            cachePaths.put((currentNode.index, end.index), result)
             return Some(result)
           }
         })
@@ -63,38 +65,72 @@ object CountingOnTree {
     var t0 = System.nanoTime()
 
     (1 to q).map(_ => {
-      val w = nodes(sc.nextInt - 1)
-      val x = nodes(sc.nextInt - 1)
-      val y = nodes(sc.nextInt - 1)
-      val z = nodes(sc.nextInt - 1)
+      val wi = sc.nextInt - 1
+      val xi = sc.nextInt - 1
+      val yi = sc.nextInt - 1
+      val zi = sc.nextInt - 1
 
-      //nodeValues
-      val pathWX: List[Node] = getPath(w, w, x).getOrElse(Nil)
-      val pathYZ: List[Node] = getPath(y, y, z).getOrElse(Nil)
+      val w = nodes(wi)
+      val x = nodes(xi)
+      val y = nodes(yi)
+      val z = nodes(zi)
 
-      valToIndexMap.clear()
       var count = 0
+      if (cacheCounts.contains((wi, xi), (yi, zi))) {
+        count = cacheCounts.get((wi, xi), (yi, zi)).get
 
-      pathWX.foreach(e => {
-        val s = valToIndexMap.getOrElseUpdate(e.value, new mutable.HashSet[Int]())
-        s.add(e.index)
-      })
+      } else if (cacheCounts.contains((xi, wi), (yi, zi))) {
+        count = cacheCounts.get((xi, wi), (yi, zi)).get
 
-      pathYZ.foreach(e => {
-        val optVal = valToIndexMap.get(e.value)
-        if (optVal.nonEmpty) {
-          val v = optVal.get
-          if (v.size == 1) {
-            if (v.head != e.index)
-              count += 1
+      } else if (cacheCounts.contains((xi, wi), (zi, yi))) {
+        count = cacheCounts.get((xi, wi), (zi, yi)).get
+
+      } else if (cacheCounts.contains((wi, xi), (zi, yi))) {
+        count = cacheCounts.get((wi, xi), (zi, yi)).get
+
+
+      } else if (cacheCounts.contains((yi, zi), (wi, xi))) {
+        count = cacheCounts.get((yi, zi), (wi, xi)).get
+
+      } else if (cacheCounts.contains((yi, zi), (xi, wi))) {
+        count = cacheCounts.get((yi, zi), (xi, wi)).get
+
+      } else if (cacheCounts.contains((zi, yi), (xi, wi))) {
+        count = cacheCounts.get((zi, yi), (xi, wi)).get
+
+      } else if (cacheCounts.contains((zi, yi), (wi, xi))) {
+        count = cacheCounts.get((zi, yi), (wi, xi)).get
+
+
+      } else {
+        //nodeValues
+        val pathWX: List[Node] = getPath(w, w, x).getOrElse(Nil)
+        val pathYZ: List[Node] = getPath(y, y, z).getOrElse(Nil)
+
+        valToIndexMap.clear()
+
+        pathWX.foreach(e => {
+          val s = valToIndexMap.getOrElseUpdate(e.value, new mutable.HashSet[Int]())
+          s.add(e.index)
+        })
+        pathYZ.foreach(e => {
+          val optVal = valToIndexMap.get(e.value)
+          if (optVal.nonEmpty) {
+            val v = optVal.get
+            if (v.size == 1) {
+              if (v.head != e.index)
+                count += 1
+            }
+            else // if (v.size > 1)
+              count += v.count(ve => ve != e.index)
           }
-          else // if (v.size > 1)
-            count += v.count(ve => ve != e.index)
-        }
-      })
+        })
+        cacheCounts.put(((wi, xi), (yi, zi)), count)
+      }
       res.append(count).append('\n')
     })
     println(res.toString())
+
     val t1 = System.nanoTime()
     val write = new PrintWriter(new FileOutputStream(new File("~/Downloads/tree_count/timings.txt"), true))
     write.println("Elapsed time: " + (t1 - t0) + "ns")
