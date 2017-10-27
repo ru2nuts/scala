@@ -1,4 +1,4 @@
-package example
+package org.ru2nuts.spark.example
 
 import scala.util.Random
 

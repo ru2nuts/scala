@@ -112,6 +112,34 @@ public class EasyTrees {
     return root;
   }
 
+
+  static Node lca(Node root, int v1, int v2) {
+    if (root == null)
+      return null;
+
+    if (root.data == v1 || root.data == v2)
+      return root;
+
+    if (lcaHelperContains(root.left, v1) && lcaHelperContains(root.right, v2) ||
+        lcaHelperContains(root.left, v2) && lcaHelperContains(root.right, v1))
+      return root;
+
+    Node nl = lca(root.left, v1, v2);
+    if (nl != null)
+      return nl;
+
+    return lca(root.right, v1, v2);
+  }
+
+  static boolean lcaHelperContains(Node n, int v) {
+    if (n == null)
+      return false;
+    return n.data == v || lcaHelperContains(n.left, v) || lcaHelperContains(n.right, v);
+  }
+
+
+
+
   public static void main(String[] args) {
 
   }

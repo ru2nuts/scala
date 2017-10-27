@@ -1,6 +1,4 @@
-package example
-
-import example.ReservoirSampling
+package org.ru2nuts.spark.example
 
 
 object ScalaMain {
