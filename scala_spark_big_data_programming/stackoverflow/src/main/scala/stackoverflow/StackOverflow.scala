@@ -1,11 +1,9 @@
 package stackoverflow
 
-import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
-import annotation.tailrec
-import scala.reflect.ClassTag
+import org.apache.spark.{SparkConf, SparkContext}
+
+import scala.annotation.tailrec
 
 /** A raw stackoverflow posting, either a question or an answer */
 case class Posting(postingType: Int, id: Int, acceptedAnswer: Option[Int], parentId: Option[QID], score: Int, tags: Option[String]) extends Serializable
@@ -78,7 +76,10 @@ class StackOverflow extends Serializable {
 
   /** Group the questions and answers together */
   def groupedPostings(postings: RDD[Posting]): RDD[(QID, Iterable[(Question, Answer)])] = {
-    ???
+    val questions = postings.filter(p => p.postingType == 1).map(q => (q.id.asInstanceOf[QID], q.asInstanceOf[Question]))
+    val answers = postings.filter(p => p.postingType == 2).map(a => (a.parentId.get.asInstanceOf[QID], a.asInstanceOf[Answer]))
+    val grouped = questions.join(answers).groupByKey()
+    grouped
   }
 
 
@@ -97,7 +98,7 @@ class StackOverflow extends Serializable {
       highScore
     }
 
-    ???
+    grouped.map(g => (g._2.head._1, answerHighScore(g._2.map(_._2).toArray)))
   }
 
 
@@ -117,7 +118,7 @@ class StackOverflow extends Serializable {
       }
     }
 
-    ???
+    scored.flatMap(ss => ss._1.tags.map(t => (firstLangInTag(Some(t), langs).getOrElse(0) * langSpread, ss._2)))
   }
 
 
@@ -275,15 +276,26 @@ class StackOverflow extends Serializable {
     val closestGrouped = closest.groupByKey()
 
     val median = closestGrouped.mapValues { vs =>
-      val langLabel: String   = ??? // most common language in the cluster
-      val langPercent: Double = ??? // percent of the questions in the most common language
-      val clusterSize: Int    = ???
-      val medianScore: Int    = ???
+
+      val groupedByLang = vs.groupBy(_._1)
+      val maxItem = groupedByLang.map(p => (p._1, p._2.size)).toSeq.sortBy(-_._2).head
+      val totalAnswers = groupedByLang.map(a => a._2.size).reduce(_ + _)
+      val medianHighScore = seqMedian(groupedByLang.map(_._2.toSeq.sortBy(-_._2).head._2.toDouble).toSeq)
+
+      val langLabel: String   = langs(maxItem._1 / langSpread) // most common language in the cluster
+      val langPercent: Double = maxItem._2.toDouble / totalAnswers // percent of the questions in the most common language
+      val clusterSize: Int    = vs.size
+      val medianScore: Int    = medianHighScore.toInt
 
       (langLabel, langPercent, clusterSize, medianScore)
     }
 
     median.collect().map(_._2).sortBy(_._4)
+  }
+
+  def seqMedian(s: Seq[Double]) = {
+    val (lower, upper) = s.sortWith(_ < _).splitAt(s.size / 2)
+    if (s.size % 2 == 0) (lower.last + upper.head) / 2.0 else upper.head
   }
 
   def printResults(results: Array[(String, Double, Int, Int)]): Unit = {
