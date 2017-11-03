@@ -8,53 +8,70 @@ import scala.collection.mutable
 object UniqueColors {
 
   class Node(val index: Int, val color: Int) {
-    val adjacent: mutable.HashSet[Node] = mutable.HashSet[Node]()
+    val adjacent: mutable.MutableList[Node] = mutable.MutableList[Node]()
 
     override def toString: String = "" + index + ":" + color
   }
 
-  def getPath(currentNode: Node, prevNode: Node): mutable.HashSet[Int] = {
-    val colors = mutable.HashSet[Int]()
+  val cache: mutable.HashMap[(Node, Node), Int] = mutable.HashMap[(Node, Node), Int]()
 
-    colors += currentNode.color
+  def getPath(from: Node, to: Node, prevNode: Node, colors: mutable.HashSet[Int]): Int = {
 
-    val frontier = currentNode.adjacent.filter(_ != prevNode)
+    colors += from.color
+    if (from == to) {
+      val size = colors.size
+      return size
+    }
+    val frontier = from.adjacent.filter(_ != prevNode)
+    if (frontier.size == 0)
+      return 0
+    else {
+      val size = frontier.map(e => { //foreach with var, because frontier is a hashset
+        getPath(e, to, from, getColorsClone(colors))
+      }).reduce(_ + _)
+      return size
+    }
+  }
 
-    val fs = frontier.size
-    val result =
-      if (fs == 0)
-        colors
-      else if (fs == 1)
-        colors ++= getPath(frontier.head, currentNode)
-      else {
-        val sss = mutable.HashSet[Int]()
-        frontier.foreach(e => { //foreach with var, because frontier is a hashset
-          sss ++= getPath(e, currentNode)
-        })
-        colors ++= sss
-      }
-    result
+  private def getColorsClone(colors: mutable.HashSet[Int]) = {
+    colors.clone()
   }
 
   def main(args: Array[String]) {
     val sc = new java.util.Scanner(System.in);
     val n = sc.nextInt
 
-    val nodes = mutable.ArrayBuffer[Node]()
+    val nodes = Array.ofDim[Node](n)
     (1 to n).foreach(index => {
-      nodes += (new Node(index, sc.nextInt))
+      nodes(index - 1) = new Node(index, sc.nextInt)
     })
 
-    val edges = (1 to n - 1).foreach(_ => {
+    (1 until n).foreach(zu => {
       val n1 = nodes(sc.nextInt - 1)
       val n2 = nodes(sc.nextInt - 1)
-      n1.adjacent.add(n2)
-      n2.adjacent.add(n1)
+      n1.adjacent += n2
+      n2.adjacent += n1
     })
 
-    (0 to n - 1).foreach(i => {
-      val node = nodes(i)
-      val colCount: Int = getPath(node, node).size
+    (0 until n).foreach(i => {
+      val node1 = nodes(i)
+      val colCount: Int = (0 until n).map(j => {
+        val node2 = nodes(j)
+
+        val possibleVal1 = cache.get(node1, node2)
+        if (possibleVal1.nonEmpty) {
+          possibleVal1.get
+        } else {
+          val possibleVal2 = cache.get(node2, node1)
+          if (possibleVal2.nonEmpty) {
+            possibleVal2.get
+          } else {
+            val size = getPath(node1, node2, node1, mutable.HashSet[Int]())
+            cache.put((node1, node2), size)
+            size
+          }
+        }
+      }).reduce(_ + _)
       println(colCount)
     })
   }
