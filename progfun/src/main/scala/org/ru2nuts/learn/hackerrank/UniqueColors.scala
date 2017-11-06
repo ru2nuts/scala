@@ -15,29 +15,34 @@ object UniqueColors {
 
   val cache: mutable.HashMap[(Node, Node), Int] = mutable.HashMap[(Node, Node), Int]()
 
-  def getPath(from: Node, to: Node, prevNode: Node, colors: BitSet): Int = {
-
-    val newColors = colors + from.color
-    if (from == to) {
-      val size = newColors.size
-      return size
-    }
-    val frontier = from.adjacent
-    if (frontier.size == 0)
-      return 0
-    else {
-      val size = frontier.map(e => { //foreach with var, because frontier is a hashset
-        if (e == prevNode)
-          0
-        else
-          getPath(e, to, from, newColors)
-      }).reduce(_ + _)
-      return size
+  def getPathBFS(from: Node, to: Node): Int = {
+    val possibleVal2 = cache.get(to, from)
+    if (possibleVal2.nonEmpty) {
+      return possibleVal2.get
+    } else {
+      val q = new mutable.Queue[(Node, BitSet, Node)]()
+      q.enqueue((from, BitSet(from.color), from))
+      while (q.nonEmpty) {
+        val (node, currentBS, prevNode) = q.dequeue()
+        val nextNodes = node.adjacent.filterNot(_ == prevNode)
+        if (nextNodes.nonEmpty)
+          nextNodes.foreach(n => {
+            val nextBS = currentBS + n.color
+            if (n == to) {
+              val resSize = nextBS.size
+              cache.put((from, to), resSize)
+              return resSize
+            }
+            else
+              q.enqueue((n, nextBS, node))
+          })
+      }
+      1
     }
   }
 
   def main(args: Array[String]) {
-    val sc = new java.util.Scanner(System.in);
+    val sc = new java.util.Scanner(System.in)
     val n = sc.nextInt
 
     var maxColors = 0
@@ -60,23 +65,18 @@ object UniqueColors {
     val res = new java.lang.StringBuilder()
 
     (0 until n).foreach(i => {
-      val node1 = nodes(i)
+      val from = nodes(i)
       val colCount: Int = (0 until n).map(j => {
-        val node2 = nodes(j)
-        val possibleVal2 = cache.get(node2, node1)
-        if (possibleVal2.nonEmpty) {
-          possibleVal2.get
-        } else {
-          val b = BitSet.newBuilder
-          b.sizeHint(maxColors)
-          val size = getPath(node1, node2, node1, b.result())
-          cache.put((node1, node2), size)
+        if (i == j)
+          1
+        else {
+          val to = nodes(j)
+          val size = getPathBFS(from, to)
           size
         }
-
       }).reduce(_ + _)
-      //println(colCount)
-      res.append(colCount).append('\n')
+      println(colCount)
+      //res.append(colCount).append('\n')
     })
     println(res.toString())
   }
