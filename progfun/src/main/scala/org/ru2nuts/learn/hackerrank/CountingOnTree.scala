@@ -19,27 +19,23 @@ object CountingOnTree {
 
   val cacheCounts = mutable.HashMap[((Int, Int), (Int, Int)), Int]()
 
-  def getPath(currentNode: Node, prevNode: Node, end: Node): Option[List[Node]] = {
-    if (currentNode == end)
-      return Some(currentNode :: Nil)
-
-    val cachedVal = cachePaths.get((currentNode.index, end.index))
-    if (cachedVal.nonEmpty) {
-      return Some(cachedVal.get)
-    } else {
-      val frontier = currentNode.adjacent.filter(_ != prevNode)
-      if (frontier.nonEmpty) {
-        frontier.foreach(e => {
-          val p = getPath(e, currentNode, end)
-          if (p.nonEmpty) {
-            val result = currentNode :: p.get
-            cachePaths.put((currentNode.index, end.index), result)
-            return Some(result)
+  def getPathBFS(from: Node, to: Node): Option[mutable.ListBuffer[Node]] = {
+    val q = new mutable.Queue[(Node, mutable.ListBuffer[Node], Node)]()
+    q.enqueue((from, mutable.ListBuffer[Node](from), from))
+    while (q.nonEmpty) {
+      val (node, currentPath, prevNode) = q.dequeue()
+      val nextNodes = node.adjacent.filterNot(_ == prevNode)
+      if (nextNodes.nonEmpty)
+        nextNodes.foreach(n => {
+          val nextPath = currentPath += n
+          if (n == to) {
+            return Some(nextPath)
           }
+          else
+            q.enqueue((n, nextPath, node))
         })
-      }
-      return None
     }
+    None
   }
 
   def main(args: Array[String]) {
@@ -104,8 +100,8 @@ object CountingOnTree {
 
       } else {
         //nodeValues
-        val pathWX: List[Node] = getPath(w, w, x).getOrElse(Nil)
-        val pathYZ: List[Node] = getPath(y, y, z).getOrElse(Nil)
+        val pathWX: mutable.ListBuffer[Node] = getPathBFS(w, w).getOrElse(mutable.ListBuffer.empty)
+        val pathYZ: mutable.ListBuffer[Node] = getPathBFS(y, y).getOrElse(mutable.ListBuffer.empty)
 
         valToIndexMap.clear()
 
@@ -127,6 +123,7 @@ object CountingOnTree {
         })
         cacheCounts.put(((wi, xi), (yi, zi)), count)
       }
+      println(count)
       res.append(count).append('\n')
     })
     println(res.toString())
