@@ -15,6 +15,11 @@ public class NewtonBabylonianSquareRoot {
         System.out.println(inst.sqRtInt(49));
         System.out.println(inst.sqRtInt(9));
         System.out.println(inst.sqRtInt(81));
+        System.out.println(inst.sqRtInt(10));
+    }
+
+    int sqRtInt(int a) {
+        return (int) Math.floor(sqRt(a));
     }
 
     double sqRt(int target) {
@@ -27,10 +32,6 @@ public class NewtonBabylonianSquareRoot {
             else
                 guess = (guess + target / guess) / 2;
         }
-    }
-
-    int sqRtInt(int a) {
-        return (int) Math.floor(sqRt(a));
     }
 
     boolean isClose(double x) {
