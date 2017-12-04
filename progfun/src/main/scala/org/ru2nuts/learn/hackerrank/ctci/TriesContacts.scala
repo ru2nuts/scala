@@ -24,20 +24,20 @@ object TriesContacts {
         }
         case _ => throw new IllegalStateException("I dunno");
       }
-
     }
   }
 
   val trie: Node = new Node(false, new scala.collection.mutable.HashMap[Char, Node](), 0)
 
-  def findPartial(trie: Node, partialWord: String, strartInd: Int): Int = {
-    if (strartInd >= partialWord.length) { //isEmpty
+  def findPartial(trie: Node, partialWord: String, startInd: Int): Int = {
+    if (startInd >= partialWord.length) { //isEmpty
       return countWords(trie)
     }
-    val c = partialWord(strartInd)
+    val c = partialWord(startInd)
     val possibleChild = trie.children.get(c)
     if (possibleChild.nonEmpty) {
-      return findPartial(possibleChild.get, partialWord, strartInd + 1)
+      val n = possibleChild.get
+      return (if (n.isWord && startInd == partialWord.length-1) 1 else 0) + findPartial(n, partialWord, startInd + 1)
     }
     return 0
   }
@@ -47,24 +47,25 @@ object TriesContacts {
     //(if (trie.isWord) 1 else 0) + trie.children.map(e => countWords(e._2)).sum
   }
 
-  def addWord(trie: Node, word: String, strartInd: Int): Int = {
-    if (strartInd >= word.length) { //isEmpty
+  def addWord(trie: Node, word: String, startInd: Int): Int = {
+    if (startInd >= word.length) { //isEmpty
       trie.isWord = true
       return 1
-    }
-    val c = word(strartInd)
-    val possibleChild = trie.children.get(c)
-    if (possibleChild.nonEmpty) {
-      trie.wordCount += addWord(possibleChild.get, word, strartInd + 1)
-      return trie.wordCount
     } else {
-      val newN = new Node(false, new scala.collection.mutable.HashMap[Char, Node](), 0)
-      trie.children.put(c, newN)
-      trie.wordCount += addWord(newN, word, strartInd + 1);
-      return trie.wordCount;
+      val c = word(startInd)
+      val possibleChild =
+        if (trie.children.contains(c))
+          trie.children(c)
+        else {
+          val newN = new Node(false, new scala.collection.mutable.HashMap[Char, Node](), 0)
+          trie.children.put(c, newN)
+          newN
+        }
+      trie.wordCount += 1
+      addWord(possibleChild, word, startInd + 1)
+      return trie.wordCount
     }
   }
 
   class Node(var isWord: Boolean, val children: scala.collection.mutable.HashMap[Char, Node], var wordCount: Int)
-
 }
