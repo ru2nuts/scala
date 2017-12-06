@@ -79,9 +79,9 @@ object FindRunningMedian {
     val leftSize = leftDesc.size()
     val rightSize = rightAsc.size()
     if (leftSize < rightSize) {
-      sb.append(rightAsc.iterator().next())
+      sb.append(rightAsc.iterator().next()).append('.').append(0)
     } else if (leftSize > rightSize) {
-      sb.append(leftDesc.iterator().next())
+      sb.append(leftDesc.iterator().next()).append('.').append(0)
     } else {
       val v1 = leftDesc.iterator().next()
       val v2 = rightAsc.iterator().next()

@@ -1,10 +1,12 @@
 package org.ru2nuts.learn.hackerrank
 
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 
+/**
+  * //https://www.hackerrank.com/challenges/bfsshortreach
+  */
 object BFSShortestSearch {
 
-  //https://www.hackerrank.com/challenges/bfsshortreach
   def bfsDistances(startN: Int, nodeCount: Int, edges: Array[(Int, Int)]): Array[Int] = {
 
     val distances: Array[Int] = new Array[Int](nodeCount)
