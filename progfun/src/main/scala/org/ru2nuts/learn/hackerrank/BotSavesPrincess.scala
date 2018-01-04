@@ -1,5 +1,7 @@
 package org.ru2nuts.learn.hackerrank
 
+import scala.collection.mutable.{HashSet, ListBuffer, Queue}
+
 /**
   * https://www.hackerrank.com/challenges/saveprincess
   */
@@ -16,46 +18,57 @@ object BotSavesPrincess {
 
   /* Refer to Output format section for more details */
   def displayPathtoPrincess(n: Int, grid: Array[String]) = {
-    val path = step(None, grid, n / 2, n / 2, new scala.collection.mutable.HashSet[(Int, Int)]())
+    val path = getPath(grid, n / 2, n / 2)
     path.foreach(_.foreach(println))
   }
 
+  def getAdjacent(grid: Array[String], row: Int, col: Int, visited: HashSet[(Int, Int)]): List[(Int, Int, String)] = {
+    visited.add((row, col))
+    val paths = List(
+      if (row - 1 >= 0 && !visited.contains(row - 1, col))
+        Some(row - 1, col, "UP")
+      else
+        None,
+      if (col - 1 >= 0 && !visited.contains(row, col - 1))
+        Some(row, col - 1, "LEFT")
+      else
+        None,
+      if (row + 1 < grid.length && !visited.contains(row + 1, col))
+        Some(row + 1, col, "DOWN")
+      else
+        None,
+      if (col + 1 < grid.length && !visited.contains(row, col + 1))
+        Some(row, col + 1, "RIGHT")
+      else
+        None)
 
-  def step(from: Option[String], grid: Array[String], row: Int, col: Int,
-           visited: scala.collection.mutable.HashSet[(Int, Int)]): Option[List[String]] = {
-    if (grid(row).charAt(col) == 'p') {
-      from.map(_ :: Nil)
-    } else if (visited.contains(row, col)) {
-      None
-    } else {
-      visited.add((row, col))
-      val paths = List(
-        if (row - 1 >= 0)
-          step(Some("UP"), grid, row - 1, col, visited)
-        else
-          None,
-        if (col - 1 >= 0)
-          step(Some("LEFT"), grid, row, col - 1, visited)
-        else
-          None,
-        if (row + 1 < grid.length)
-          step(Some("DOWN"), grid, row + 1, col, visited)
-        else
-          None,
-        if (col + 1 > grid.length)
-          step(Some("RIGHT"), grid, row, col + 1, visited)
-        else
-          None)
-        .filter(_.nonEmpty).map(_.get)
+    paths.filter(_.nonEmpty).map(_.get)
+  }
 
-      if (paths.nonEmpty) {
-        val minPath = paths.minBy(_.length)
-        if (from.nonEmpty)
-          Some(from.get :: minPath)
-        else
-          Some(minPath)
-      } else
-        None
+  def getPath(grid: Array[String], row: Int, col: Int): Option[List[String]] = {
+
+    val allPaths = new ListBuffer[List[String]]()
+
+    val visited = new HashSet[(Int, Int)]()
+
+    val queue = new Queue[(Int, Int, ListBuffer[String])]()
+    queue.enqueue((row, col, new ListBuffer[String]()))
+    while (queue.nonEmpty) {
+      val (r, c, currentPath) = queue.dequeue()
+      if (grid(r).charAt(c) == 'p') {
+        allPaths.append(currentPath.toList)
+      }
+      val adj = getAdjacent(grid, r, c, visited)
+
+      adj.foreach(a => {
+        val newCurrentPath = currentPath.clone()
+        newCurrentPath.append(a._3)
+        queue.enqueue((a._1, a._2, newCurrentPath))
+      })
     }
+    if (allPaths.nonEmpty)
+      return Some(allPaths.minBy(_.length))
+    else
+      return None
   }
 }

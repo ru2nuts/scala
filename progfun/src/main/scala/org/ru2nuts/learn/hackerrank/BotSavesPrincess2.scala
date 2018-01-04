@@ -25,19 +25,19 @@ object BotSavesPrincess2 {
   def getAdjacent(grid: Array[String], row: Int, col: Int, visited: HashSet[(Int, Int)]): List[(Int, Int, String)] = {
     visited.add((row, col))
     val paths = List(
-      if (row - 1 >= 0)
+      if (row - 1 >= 0 && !visited.contains(row - 1, col))
         Some(row - 1, col, "UP")
       else
         None,
-      if (col - 1 >= 0)
+      if (col - 1 >= 0 && !visited.contains(row, col - 1))
         Some(row, col - 1, "LEFT")
       else
         None,
-      if (row + 1 < grid.length)
+      if (row + 1 < grid.length && !visited.contains(row + 1, col))
         Some(row + 1, col, "DOWN")
       else
         None,
-      if (col + 1 > grid.length)
+      if (col + 1 < grid.length && !visited.contains(row, col + 1))
         Some(row, col + 1, "RIGHT")
       else
         None)
@@ -47,20 +47,28 @@ object BotSavesPrincess2 {
 
   def getPath(grid: Array[String], row: Int, col: Int): Option[List[String]] = {
 
-    val currentPath = new ListBuffer[String]()
+    val allPaths = new ListBuffer[List[String]]()
+
     val visited = new HashSet[(Int, Int)]()
 
-    val queue = new Queue[(Int, Int, String)]()
-    queue.enqueue((row, col, ""))
+    val queue = new Queue[(Int, Int, ListBuffer[String])]()
+    queue.enqueue((row, col, new ListBuffer[String]()))
     while (queue.nonEmpty) {
-      val (r, c, dir) = queue.dequeue()
+      val (r, c, currentPath) = queue.dequeue()
       if (grid(r).charAt(c) == 'p') {
-        currentPath.append(dir)
-        return Some(currentPath.toList)
+        allPaths.append(currentPath.toList)
       }
       val adj = getAdjacent(grid, r, c, visited)
-      adj.foreach(queue.enqueue(_))
+
+      adj.foreach(a => {
+        val newCurrentPath = currentPath.clone()
+        newCurrentPath.append(a._3)
+        queue.enqueue((a._1, a._2, newCurrentPath))
+      })
     }
-    return None
+    if (allPaths.nonEmpty)
+      return Some(allPaths.minBy(_.length))
+    else
+      return None
   }
 }
