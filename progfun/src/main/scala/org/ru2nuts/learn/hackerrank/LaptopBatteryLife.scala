@@ -13,7 +13,6 @@ object LaptopBatteryLife {
       (a(0).toDouble, a(1).toDouble)
     }).toSeq
 
-
     val maxY = allVals.maxBy(d => d._2)._2
 
     val maxYValsSorted = allVals.filter(d => d._2 == maxY).sortBy(d => d._1)
@@ -65,7 +64,7 @@ object LaptopBatteryLife {
 
   def main(args: Array[String]) {
 
-    val ((alpha, beta), maxY) = trainModel("/Users/oarutyunyants/projects/ru2nuts/scala/progfun/src/main/scala/org/ru2nuts/learn/hackerrank/LaptopBatteryLife.data/trainingdata.txt")
+    val ((alpha, beta), maxY) = trainModel("~/projects/ru2nuts/scala/progfun/src/main/scala/org/ru2nuts/learn/hackerrank/LaptopBatteryLife.data/trainingdata.txt")
 
     val maxX = (maxY - alpha) / beta
 
