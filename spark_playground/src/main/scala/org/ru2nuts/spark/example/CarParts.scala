@@ -44,23 +44,26 @@ object CarParts {
     import spark.sqlContext.implicits._
 
     try {
+
+      val path = CarParts.getClass.getResource("/car_parts").getPath
+
       val additionalInfoRaw: DataFrame = spark.read
         .format("csv")
         .option("header", "true")
         .option("mode", "DROPMALFORMED")
-        .load("/tmp/car_parts/additional_info.csv")
+        .load(s"$path/additional_info.csv")
 
       val partCostsRaw = spark.read
         .format("csv")
         .option("header", "true")
         .option("mode", "DROPMALFORMED")
-        .load("/tmp/car_parts/part_costs.csv")
+        .load(s"$path/part_costs.csv")
 
       val partNumberToCarMapRaw = spark.read
         .format("csv")
         .option("header", "true")
         .option("mode", "DROPMALFORMED")
-        .load("/tmp/car_parts/part_numbers.csv")
+        .load(s"$path/part_numbers.csv")
 
 
       val fixCarIDsMap = fixCarIDsDS(spark)
